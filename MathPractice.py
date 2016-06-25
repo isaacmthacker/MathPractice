@@ -1,4 +1,5 @@
 import random
+import math
 import time
 
 def add(first, second):
@@ -7,13 +8,17 @@ def sub(first, second):
   return first-second
 def mult(first, second):
   return first*second
+def div(first, second):   #to two decimal places unrounded
+  remainder = math.floor(((float(first) / second) - (first/second))*100)/100
+  return (first / second)+remainder
 
 operations = {
  '+' : add,
  '-' : sub,
- '*' : mult
+ '*' : mult,
+ '/' : div
 }
-opSymbols = ['+', '-', '*']
+opSymbols = ['+', '-', '*', '/']
 maxLevel = 10
 maxTime = 4
 levelMaxForRand = [0]
@@ -32,8 +37,11 @@ class Problem:
     self.endTime = 0
 
   def checkAnswer(self, valueToCheck):
+    #if(self.opChar == "/"):
+      #print str(self.result) + " " + str(valueToCheck)
     self.correct = self.result == valueToCheck
     self.endTime = time.time()-self.startTime
+    self.answer = valueToCheck
   
   def __str__(self):
     maxNumLength = len(str(levelMaxForRand[maxLevel]*levelMaxForRand[maxLevel]))+1
@@ -47,6 +55,11 @@ class Problem:
       retString += '\033[92mCORRECT  \033[0m'
     else:
       retString += '\033[91mINCORRECT\033[0m'
+    retString += ' : '
+    if(self.answer == math.floor(self.answer)):
+      retString += str(int(self.answer))+ (" "*(maxNumLength-len(str(int(self.result))))) 
+    else:
+      retString += str(self.answer)+ (" "*(maxNumLength-len(str(self.result)))) 
     if(self.endTime > maxTime):
       retString += '\033[93m'
       retString += ' : %.2fs' % self.endTime
@@ -63,12 +76,15 @@ level = levelMaxForRand[int(raw_input("What level (1-" + str(maxLevel) + ")?\n")
 problems = []
 numOfCorrect = 0
 for x in range(0,numOfProblems):
-  op = opSymbols[random.randint(0,len(opSymbols)-1)]
   firstNum = random.randint(0,level)
   secondNum = random.randint(0,level)
+  if(firstNum == 0 or secondNum == 0):
+    op = opSymbols[random.randint(0,len(opSymbols)-2)]
+  else:
+    op = opSymbols[random.randint(0,len(opSymbols)-1)]
   curProb = Problem(firstNum, secondNum, op)
   answer = raw_input(str(firstNum) + ' ' + op + ' ' + str(secondNum) + ' = ')
-  curProb.checkAnswer(int(answer))
+  curProb.checkAnswer(float(answer))
   if(curProb.correct):
     numOfCorrect += 1
   problems.append(curProb)
